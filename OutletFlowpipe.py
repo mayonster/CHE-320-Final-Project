@@ -9,15 +9,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as spop
 
-R = 0.245 #m
+R = 0.1225 #m
 L = 0.0026 #km
-dP = 6.732 #MJ/m^3
+dP = 5.13 #MJ/m^3
 Vis0 = 16.355 #kJ*s/m^3
 Gamma = -0.45
 Lambda = 0.18
 dPdz = dP/L #kJ/m^4
 
-
+file1 = open("OutletData.txt","a")#append mode
 
 def Viscosity(dvdr):
     Factor1 = Lambda*dvdr
@@ -44,7 +44,7 @@ def Functions(v_Array,r_Array):
     return f_Array
 
 
-dr = 0.005
+dr = 0.000025
 dPdzdrdr = 2.*dPdz*dr*dr
 r_Array = np.arange(0,R+dr,dr)
 v_Array = np.zeros_like(r_Array)
@@ -69,12 +69,15 @@ Tau_Array = dvdr_Array*Viscosity_Array
 Force = Tau_Array[-1]
 Force = Force*2*np.pi*R*L
 print("Force",Force)
+file1.write("Force: {}\n".format(Force))
 
 Flowrate = np.trapz(v_Array*r_Array,r_Array)
 Flowrate = 2.*np.pi*Flowrate
 print("Flowrate",Flowrate)
+file1.write("Flowrate: {}\n".format(Flowrate))
 Power = Flowrate*dP
 print("Power",Power)
+file1.write("Power: {}\n".format(Power))
 
 
 plt.plot(r_Array,v_Array)
@@ -91,8 +94,12 @@ plt.ylabel("Tau [N/m\u00b2]")
 plt.show()
 
 print()
-Line = "{:12s}\t{:12s}\t{:12s}\t".format("r [m]","vel [m/s]","Tau [N/m\u00b2]")
+Line = "{:12s}\t{:12s}\t{:12s}\t\n".format("r [m]","vel [m/s]","Tau [N/m\u00b2]")
 print(Line)
+file1.write(Line)
 for m in range(Nodes):
-    Line = "{:12.4f}\t{:12.4f}\t{:12.4f}\t".format(r_Array[m],v_Array[m],Tau_Array[m])
+    Line = "{:12.6f}\t{:12.6f}\t{:12.4f}\t\n".format(r_Array[m],v_Array[m],Tau_Array[m])
     print(Line)
+    file1.write(Line)
+    
+file1.close()
